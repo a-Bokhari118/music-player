@@ -11,6 +11,8 @@ function App() {
   const [currentSong, setCurrentSong] = useState(songs[0]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [libraryStatus, setLibraryStatus] = useState(false);
+  const [isShuffle, setIsShuffle] = useState(false);
+  const [isLoop, setIsLoop] = useState(false);
   const audioRef = useRef(null);
 
   const [songInfo, setSongInfo] = useState({
@@ -33,11 +35,41 @@ function App() {
       animationPercentage: animation,
     });
   };
-
+  function randomNum(min, max) {
+    return Math.floor(min + Math.random() * (max - min));
+  }
   const songEndHandler = async () => {
     let currentIndex = songs.findIndex((song) => song.id === currentSong.id);
+    if (isLoop) {
+      await setCurrentSong(songs[currentIndex]);
+      if (isPlaying) audioRef.current.play();
+      return;
+    }
+
+    if (isShuffle) {
+      const nextSong = randomNum(1, songs.length);
+      if (songs[nextSong].id !== currentSong.id) {
+        await setCurrentSong(songs[nextSong]);
+        activeLibraryHandler(songs[nextSong]);
+        if (isPlaying) audioRef.current.play();
+        return;
+      }
+    }
+
     await setCurrentSong(songs[(currentIndex + 1) % songs.length]);
+    activeLibraryHandler(songs[(currentIndex + 1) % songs.length]);
     if (isPlaying) audioRef.current.play();
+  };
+
+  const activeLibraryHandler = (nextPrev) => {
+    setSongs(
+      songs.map((targetSong) => {
+        return {
+          ...targetSong,
+          active: targetSong.id === nextPrev.id,
+        };
+      })
+    );
   };
   return (
     <div className={`App ${libraryStatus ? 'library-active' : ''}`}>
@@ -54,6 +86,11 @@ function App() {
         songs={songs}
         setCurrentSong={setCurrentSong}
         setSongs={setSongs}
+        isShuffle={isShuffle}
+        setIsShuffle={setIsShuffle}
+        isLoop={isLoop}
+        setIsLoop={setIsLoop}
+        activeLibraryHandler={activeLibraryHandler}
       />
       <Library
         libraryStatus={libraryStatus}

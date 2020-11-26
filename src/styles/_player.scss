@@ -24,6 +24,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 94%;
   padding: 2rem;
   svg {
     cursor: pointer;
@@ -117,6 +118,16 @@ input[type='range']::-moz-slider-thumb {
   border: none;
 }
 
+.shuffle {
+  margin-top: 1rem;
+  cursor: pointer;
+}
+.buttons-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 10%;
+}
 @media screen and (max-width: 768px) {
   .time-control {
     width: 90%;
@@ -125,10 +136,13 @@ input[type='range']::-moz-slider-thumb {
     width: 100%;
   }
   .play-volume-wrapper {
-    width: 50%;
+    width: 60%;
   }
   .track-volume {
     width: 100%;
+  }
+  .buttons-control {
+    width: 26%;
   }
 }
 

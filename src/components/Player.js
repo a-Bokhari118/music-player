@@ -7,6 +7,8 @@ import {
   faPause,
   faVolumeUp,
   faVolumeMute,
+  faRandom,
+  faUndo,
 } from '@fortawesome/free-solid-svg-icons';
 
 const Player = ({
@@ -19,6 +21,11 @@ const Player = ({
   currentSong,
   setCurrentSong,
   setSongs,
+  isShuffle,
+  setIsShuffle,
+  isLoop,
+  setIsLoop,
+  activeLibraryHandler,
 }) => {
   const [volume, setVolume] = useState(60);
   const [isMuted, setIsMuted] = useState(false);
@@ -34,17 +41,6 @@ const Player = ({
     }
   };
 
-  const activeLibraryHandler = (nextPrev) => {
-    setSongs(
-      songs.map((targetSong) => {
-        return {
-          ...targetSong,
-          active: targetSong.id === nextPrev.id,
-        };
-      })
-    );
-  };
-
   const getTime = (time) => {
     return (
       Math.floor(time / 60) + ':' + ('0' + Math.floor(time % 60)).slice(-2)
@@ -55,9 +51,22 @@ const Player = ({
     audioRef.current.currentTime = e.target.value;
     setSongInfo({ ...songInfo, currentTime: e.target.value });
   };
-
+  function random(min, max) {
+    return Math.floor(min + Math.random() * (max - min));
+  }
   const skipTrackHandler = async (direction) => {
     let currentIndex = songs.findIndex((song) => song.id === currentSong.id);
+
+    if (isShuffle) {
+      const nextSong = random(1, songs.length);
+      if (songs[nextSong] !== currentSong) {
+        await setCurrentSong(songs[nextSong]);
+        activeLibraryHandler(songs[nextSong]);
+        if (isPlaying) audioRef.current.play();
+        return;
+      }
+    }
+
     if (direction === 'skip-forward') {
       await setCurrentSong(songs[(currentIndex + 1) % songs.length]);
       activeLibraryHandler(songs[(currentIndex + 1) % songs.length]);
@@ -169,6 +178,26 @@ const Player = ({
             icon={isMuted ? faVolumeMute : faVolumeUp}
           />
         </div>
+      </div>
+      <div className='buttons-control'>
+        <FontAwesomeIcon
+          className='shuffle'
+          onClick={() => {
+            setIsShuffle(!isShuffle);
+          }}
+          size='2x'
+          icon={faRandom}
+          color={isShuffle ? 'green' : 'gray'}
+        />
+        <FontAwesomeIcon
+          className='shuffle'
+          onClick={() => {
+            setIsLoop(!isLoop);
+          }}
+          size='2x'
+          icon={faUndo}
+          color={isLoop ? 'green' : 'gray'}
+        />
       </div>
     </div>
   );
